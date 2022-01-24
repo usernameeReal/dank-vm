@@ -179,7 +179,7 @@ class CollabVMServer : public std::enable_shared_from_this<CollabVMServer> {
 		//kHttpUploadFinished,
 		//kHttpUploadFailed,
 		//kHttpUploadTimedout,
-		kUploadEnded, // Agent upload ended
+		//kUploadEnded, // Agent upload ended
 		//kHeartbeatTimedout,	// Heartbeat timed out
 		kKeepAlive,		   // Broadcast keep-alive message
 		kVMStateChange,	   // VM controller state changed
