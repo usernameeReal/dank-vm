@@ -994,7 +994,7 @@ void CollabVMServer::ProcessingThread() {
 				controller->CleanUp();
 				break;
 			}
-			case ActionType::kShutdown:
+			case ActionType::kShutdown: {
 
 				// Disconnect all active clients
 				for(const auto& connection : connections_) {
@@ -1020,6 +1020,10 @@ void CollabVMServer::ProcessingThread() {
 				}
 
 				// (we don't need to worry about erasing them, the CollabVMServer destructor will do that for us.)
+		}
+			case ActionType::kUploadEnded: {
+			break; // until i remove the agent
+			}
 		}
 
 		delete action;
