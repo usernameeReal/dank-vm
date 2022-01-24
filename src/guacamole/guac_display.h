@@ -58,8 +58,17 @@ typedef struct guac_common_display_layer {
  * default surface, mouse cursor, and various allocated buffers and layers.
  */
 typedef struct guac_common_display {
-
-    // TODO: clang warns here
+	
+    /**
+     * The number of available slots within the layers array.
+     */
+	int layers_size;
+    
+	/**
+     * The number of available slots within the buffers array.
+     */
+	int buffers_size;
+    // TODO: clang warns here // now it doesn't -- yellows111
 	guac_common_display(GuacClient& client, int width, int height) :
 		client(client),
 		cursor(guac_common_cursor_alloc(client)), // Allocate shared cursor
@@ -98,22 +107,12 @@ typedef struct guac_common_display {
     guac_common_display_layer* layers;
 
     /**
-     * The number of available slots within the layers array.
-     */
-    int layers_size;
-
-    /**
      * All currently-allocated buffers. Each buffer is stored by index, with
      * buffer #-1 being buffers[0]. There are no buffers with index >= 0. Not
      * all slots within this array will be used, and any unused slots will be
      * set to NULL.
      */
     guac_common_display_layer* buffers;
-
-    /**
-     * The number of available slots within the buffers array.
-     */
-    int buffers_size;
 
 
 } guac_common_display;
