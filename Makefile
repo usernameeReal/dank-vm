@@ -71,7 +71,7 @@ endif
 all:
 	@$(MAKE) -f $(MKCONFIG) DEBUG=$(DEBUG) JPEG=$(JPEG)
 	@./scripts/build_site.sh $(ARCH)
-	-@ if [ -d "$(BINDIR)/http" ]; then rm -rf $(BINDIR)/http; fi;
+	-@ if [ -d "$(BINDIR)http" ]; then rm -rf $(BINDIR)http; fi;
 	-@mv -f http/ $(BINDIR)
 ifeq ($(OS), Windows_NT)
 
