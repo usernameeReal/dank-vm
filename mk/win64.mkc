@@ -1,6 +1,8 @@
 # CollabVM Server make config for
 # 64-bit Windows
 
+WIN32=1
+
 CXX = x86_64-w64-mingw32-clang++
 CC = x86_64-w64-mingw32-clang
 
@@ -10,9 +12,8 @@ ifeq ($(DEBUG),0)
 LIBS += -s
 endif
 
+# object and binary dir
 OBJDIR = obj/win64
 BINDIR = bin/win64
 
 -include mk/Makedefs
-
-CCFLAGS += -Icvmlib/include

@@ -10,6 +10,7 @@
 *.log
 *.patch.*
 *.rej
+*.bak
 
 # Ignore the http binary dir, sometimes it gets left in the source root
 http/

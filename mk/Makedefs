@@ -115,6 +115,11 @@ ifeq ($(JPEG), 1)
 OBJS += $(OBJDIR)/cairo_jpg.o
 endif
 
+ifeq ($(WIN32), 1) 
+# build in resources
+OBJS += $(OBJDIR)/version.o
+endif
+
 # Set the VPATH to all of the possible source tree locations.
 # This decomplicates a lot of this file and makes it easier to understand
 VPATH := src/             \
@@ -170,6 +175,12 @@ $(OBJDIR)/%.o: %.cxx
 $(OBJDIR)/%.o: %.c
 	$(info Compiling C source file $<)
 	$(CC) -c $< $(CCFLAGS) $(DEPGEN) -o $@
+
+ifeq ($(WIN32), 1) 
+$(OBJDIR)/%.o: %.rc
+	$(info Compiling Win32 resource file $<)
+	windres $< --output $@
+endif
 
 # include dependencies
 -include $(wildcard $(OBJDIR)/*.d)
