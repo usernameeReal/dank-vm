@@ -20,3 +20,9 @@ http/
 *_BASE_*
 *_LOCAL_*
 *_REMOTE_*
+
+# probably don't want to commit this
+/**/collab-vm.db
+
+# old qemu versions lay these like eggs
+trace-*
