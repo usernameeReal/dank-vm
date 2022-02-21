@@ -493,7 +493,7 @@ void QEMUController::StartQEMU() {
 		qemu_cmdline += std::string(*it).c_str();
 		qemu_cmdline += " ";
 	}
-	std::cout << "\n";
+	std::cout << std::endl;
 	STARTUPINFO si;
 
 	ZeroMemory(&si, sizeof(si));
@@ -615,14 +615,17 @@ void QEMUController::StartQEMU() {
 		std::string vnc_arg = settings_->VNCAddress + ':' + std::to_string(settings_->VNCPort - 5900);
 		args_copy.push_back(vnc_arg.c_str());
 
-		// Null terminate the arguments list
-		args_copy.push_back(nullptr);
 		std::cout << "Starting QEMU with command:\n";
-
-		for(auto & it : args_copy) {
-			if(it != nullptr)
-				std::cout << it << ' ';
+		
+		std::vector<char*> qemu_cmdline;
+		
+		for(auto& it : args_copy) {
+			std::cout << it << ' ';
+			qemu_cmdline.push_back(it.data());
 		}
+		
+		qemu_cmdline.push_back(nullptr);
+		
 		std::cout << std::endl;
 
 		/*if (redirect_fd(STDIN_FILENO, O_RDONLY)
@@ -632,7 +635,7 @@ void QEMUController::StartQEMU() {
 			std::cout << "Failed to redirect standard output for QEMU child process" << std::endl;
 		}*/
 
-		exit(execvp(args_copy[0], (char* const*)args_copy.data()));
+		exit(execvp(qemu_cmdline[0], qemu_cmdline.data()));
 	} else if(pId < 0) {
 		// Failed to fork
 		throw std::system_error(errno, std::system_category(), "fork() failed when trying to start QEMU");
