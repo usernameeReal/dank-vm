@@ -328,15 +328,15 @@ void QEMUController::Start() {
 }
 
 void QEMUController::SetCommand(const std::string& command) {
-	// Free all arguments
-	
-	//for(auto & it : qemu_command_)
-	//	delete[] it;
+	std::cout << "QEMU Command: " << command << "\n";
+	auto cmdopt = SplitCommandLine(command);
 
-	qemu_command_.clear();
+	if(!cmdopt.has_value()) {
+		std::cout << "I'm not sure what you've done, but you've made QEMUController::SplitCommandLine return a nullopt. Good job, you get a cookie.\nHow do you feel?\n";
+		return;
+	}
 
-	if(!command.empty())
-		qemu_command_ = SplitCommandLine(command.c_str());
+	qemu_command_ = cmdopt.value();
 }
 
 void QEMUController::InitQMP() {
@@ -399,26 +399,32 @@ void QEMUController::ResetVM() {
 }
 
 void QEMUController::StartQEMU() {
+	// Make an intentional copy of the QEMU command line,
+	// so we can add args to it.
+	auto args_copy = qemu_command_;
+	//args_copy.erase(args_copy.find('\0'));
+
+
 #ifdef _WIN32
 
 	if(settings_->QEMUSnapshotMode == VMSettings::SnapshotMode::kVMSnapshots && !snapshot_.empty()) {
 		// Append loadvm command to start with snapshot
-		qemu_command_.push_back("-loadvm");
-		qemu_command_.push_back(snapshot_.c_str());
+		args_copy.push_back("-loadvm");
+		args_copy.push_back(snapshot_.c_str());
 	} else if(settings_->QEMUSnapshotMode == VMSettings::SnapshotMode::kHDSnapshots)
-		qemu_command_.push_back("-snapshot");
+		args_copy.push_back("-snapshot");
 
 	//if (settings_->QEMUSnapshotMode == VMSettings::SnapshotMode::)
-	qemu_command_.push_back("-no-shutdown");
+	args_copy.push_back("-no-shutdown");
 
 	// QMP address
-	qemu_command_.push_back("-qmp");
+	args_copy.push_back("-qmp");
 	std::string qmp_arg;
 
 	qmp_arg = "tcp:";
 	qmp_arg += qmp_address_;
 	qmp_arg += ",server,nodelay";
-	qemu_command_.push_back(qmp_arg.c_str());
+	args_copy.push_back(qmp_arg.c_str());
 
 	/*
 	else
@@ -426,7 +432,7 @@ void QEMUController::StartQEMU() {
 		qmp_arg = "pipe:";
 		qmp_arg += qmp_address_;
 		qmp_arg += ",server";
-		qemu_command_.push_back(qmp_arg.c_str());
+		args_copy.push_back(qmp_arg.c_str());
 	}
 	*/
 
@@ -434,7 +440,7 @@ void QEMUController::StartQEMU() {
 	if(settings_->AgentEnabled) {
 		if(settings_->AgentUseVirtio) {
 			// -chardev socket,id=agent,host=10.0.2.15,port=5700,nodelay,server,nowait -device virtio-serial -device virtserialport,chardev=agent
-			qemu_command_.push_back("-chardev");
+			args_copy.push_back("-chardev");
 			arg = "socket,id=agent,";
 			if(settings_->AgentSocketType == VMSettings::SocketType::kTCP) {
 				arg += "host=";
@@ -447,16 +453,16 @@ void QEMUController::StartQEMU() {
 				arg += agent_address_;
 			}
 			arg += ",server,nowait";
-			qemu_command_.push_back(arg.c_str());
+			args_copy.push_back(arg.c_str());
 
-			qemu_command_.push_back("-device");
-			qemu_command_.push_back("virtio-serial");
+			args_copy.push_back("-device");
+			args_copy.push_back("virtio-serial");
 
-			qemu_command_.push_back("-device");
-			qemu_command_.push_back("virtserialport,chardev=agent");
+			args_copy.push_back("-device");
+			args_copy.push_back("virtserialport,chardev=agent");
 		} else {
 			// Serial address
-			qemu_command_.push_back("-serial");
+			args_copy.push_back("-serial");
 			if(settings_->AgentSocketType == VMSettings::SocketType::kTCP) {
 				arg = "tcp:";
 				arg += agent_address_;
@@ -468,27 +474,26 @@ void QEMUController::StartQEMU() {
 				arg += agent_address_;
 				arg += ",server,nowait";
 			}
-			qemu_command_.push_back(arg.c_str());
+			args_copy.push_back(arg.c_str());
 		}
 	}
 
 	// Append VNC argument
-	qemu_command_.push_back("-vnc");
+	args_copy.push_back("-vnc");
 	// Subtract 5900 from the port number and append it to the hostname
 	std::string vnc_arg = settings_->VNCAddress + ':' + std::to_string(settings_->VNCPort - 5900);
-	qemu_command_.push_back(vnc_arg.c_str());
+	args_copy.push_back(vnc_arg.c_str());
 
 	std::cout << "Starting QEMU with command:\n";
 
 	std::string qemu_cmdline;
 
-	for(auto it = qemu_command_.begin(); it != qemu_command_.end(); it++) {
+	for(auto it = args_copy.begin(); it != args_copy.end(); it++) {
 		std::cout << *it << ' ';
-		qemu_cmdline += std::string(*it);
+		qemu_cmdline += std::string(*it).c_str();
 		qemu_cmdline += " ";
 	}
 	std::cout << "\n";
-
 	STARTUPINFO si;
 
 	ZeroMemory(&si, sizeof(si));
@@ -531,30 +536,30 @@ void QEMUController::StartQEMU() {
 		if (getppid() != parent_before_fork)
 			exit(1);
 
-		// The qemu_command_ vector is only modified inside of the child process
+		// The args_copy vector is only modified inside of the child process
 		if(settings_->QEMUSnapshotMode == VMSettings::SnapshotMode::kVMSnapshots && !snapshot_.empty()) {
 			// Append loadvm command to start with snapshot
-			qemu_command_.push_back("-loadvm");
-			qemu_command_.push_back(snapshot_.c_str());
+			args_copy.push_back("-loadvm");
+			args_copy.push_back(snapshot_.c_str());
 		} else if(settings_->QEMUSnapshotMode == VMSettings::SnapshotMode::kHDSnapshots)
-			qemu_command_.push_back("-snapshot");
+			args_copy.push_back("-snapshot");
 
 		//if (settings_->QEMUSnapshotMode == VMSettings::SnapshotMode::)
-		qemu_command_.push_back("-no-shutdown");
+		args_copy.push_back("-no-shutdown");
 
 		// QMP address
-		qemu_command_.push_back("-qmp");
+		args_copy.push_back("-qmp");
 		std::string qmp_arg;
 		if(settings_->QMPSocketType == VMSettings::SocketType::kTCP) {
 			qmp_arg = "tcp:";
 			qmp_arg += qmp_address_;
 			qmp_arg += ",server,nodelay";
-			qemu_command_.push_back(qmp_arg.c_str());
+			args_copy.push_back(qmp_arg.c_str());
 		} else {
 			qmp_arg = "unix:";
 			qmp_arg += qmp_address_;
 			qmp_arg += ",server";
-			qemu_command_.push_back(qmp_arg.c_str());
+			args_copy.push_back(qmp_arg.c_str());
 		}
 
 		if(access(qmp_address_.c_str(), F_OK) == 0) {
@@ -566,7 +571,7 @@ void QEMUController::StartQEMU() {
 		if(settings_->AgentEnabled) {
 			if(settings_->AgentUseVirtio) {
 				// -chardev socket,id=agent,host=10.0.2.15,port=5700,nodelay,server,nowait -device virtio-serial -device virtserialport,chardev=agent
-				qemu_command_.push_back("-chardev");
+				args_copy.push_back("-chardev");
 				arg = "socket,id=agent,";
 				if(settings_->AgentSocketType == VMSettings::SocketType::kTCP) {
 					arg += "host=";
@@ -579,16 +584,16 @@ void QEMUController::StartQEMU() {
 					arg += agent_address_;
 				}
 				arg += ",server,nowait";
-				qemu_command_.push_back(arg.c_str());
+				args_copy.push_back(arg.c_str());
 
-				qemu_command_.push_back("-device");
-				qemu_command_.push_back("virtio-serial");
+				args_copy.push_back("-device");
+				args_copy.push_back("virtio-serial");
 
-				qemu_command_.push_back("-device");
-				qemu_command_.push_back("virtserialport,chardev=agent");
+				args_copy.push_back("-device");
+				args_copy.push_back("virtserialport,chardev=agent");
 			} else {
 				// Serial address
-				qemu_command_.push_back("-serial");
+				args_copy.push_back("-serial");
 				if(settings_->AgentSocketType == VMSettings::SocketType::kTCP) {
 					arg = "tcp:";
 					arg += agent_address_;
@@ -600,21 +605,21 @@ void QEMUController::StartQEMU() {
 					arg += agent_address_;
 					arg += ",server,nowait";
 				}
-				qemu_command_.push_back(arg.c_str());
+				args_copy.push_back(arg.c_str());
 			}
 		}
 
 		// Append VNC argument
-		qemu_command_.push_back("-vnc");
+		args_copy.push_back("-vnc");
 		// Subtract 5900 from the port number and append it to the hostname
 		std::string vnc_arg = settings_->VNCAddress + ':' + std::to_string(settings_->VNCPort - 5900);
-		qemu_command_.push_back(vnc_arg.c_str());
+		args_copy.push_back(vnc_arg.c_str());
 
 		// Null terminate the arguments list
-		qemu_command_.push_back(nullptr);
+		args_copy.push_back(nullptr);
 		std::cout << "Starting QEMU with command:\n";
 
-		for(auto & it : qemu_command_) {
+		for(auto & it : args_copy) {
 			if(it != nullptr)
 				std::cout << it << ' ';
 		}
@@ -627,7 +632,7 @@ void QEMUController::StartQEMU() {
 			std::cout << "Failed to redirect standard output for QEMU child process" << std::endl;
 		}*/
 
-		exit(execvp(qemu_command_[0], (char* const*)qemu_command_.data()));
+		exit(execvp(args_copy[0], (char* const*)args_copy.data()));
 	} else if(pId < 0) {
 		// Failed to fork
 		throw std::system_error(errno, std::system_category(), "fork() failed when trying to start QEMU");
@@ -877,78 +882,88 @@ void QEMUController::OnQMPStateChange(QMPClient::QMPState state) {
 	}
 }
 
-std::vector<const char*> QEMUController::SplitCommandLine(const char* command) {
-	std::vector<const char*> cmdList;
-	int i;
-
-	// Posix.
+bool SplitCommandLineImpl(std::vector<std::string>& split_line, const std::string& command) { 
 #ifndef _WIN32
-	{
-		wordexp_t p;
+			// POSIX wordexp() implementation
 
-		// Note! This expands shell variables.
-		if(wordexp(command, &p, 0)) {
-			return cmdList;
-		}
+			wordexp_t exp;
 
-		cmdList.reserve(p.we_wordc);
+			// Do the wordexp(), not allowing command result injection.
+			// Command result injection is a security vulnerability,
+			// and I honest to god wonder how/why no one caught this before.
+			if(wordexp(command.c_str(), &exp, WRDE_NOCMD))
+				return false;
 
-		for(i = 0; i < p.we_wordc; i++) {
-			int len = strlen(p.we_wordv[i]) + 1;
-			if(!len)
-				continue;
-			char* arg = new char[len];
-			memcpy(arg, p.we_wordv[i], len);
+			split_line.reserve(exp.we_wordc);
 
-			cmdList.push_back(arg);
-		}
+			for(int i = 0; i < exp.we_wordc; i++) {
+#ifdef DEBUG
+				// I don't know if this is an actual possibility or not.
+				// if it's not this code could safely be removed
+				if(!exp.we_wordv[i])
+					continue;
+#endif
 
-	fail:
-		wordfree(&p);
+				const int len = std::strlen(exp.we_wordv[i]) + 1;
+				if(!len)
+					continue;
 
-		return cmdList;
-	}
-#else // WIN32
-	{
-		// Windows has CommandLineToArgvW but not CommandLineToArgvA
-		// so the command must be converted to unicode first
-		wchar_t** wargs = NULL;
-		size_t needed = 0;
-		size_t len = strlen(command) + 1;
-		wchar_t* cmdLineW = new wchar_t[len];
+				// Insert the string into the split line,
+				// using the explicit (CharT*, size_t) constructor for std::string.
+				split_line.emplace_back(exp.we_wordv[i], len);
+			}
 
-		if(!MultiByteToWideChar(CP_ACP, 0, command, -1, cmdLineW, len))
-			goto fail;
+			wordfree(&exp);
+#else
+			// Windows has CommandLineToArgvW but not CommandLineToArgvA
+			// so the command line must be converted to unicode first.
+			// This kind of sucks, tbh.
 
-		int argc;
-		if(!(wargs = CommandLineToArgvW(cmdLineW, &argc)))
-			goto fail;
+			int argc;
+			wchar_t** argv = nullptr;
 
-		cmdList.reserve(argc);
+			std::wstring wide_cmdline;
+			wide_cmdline.resize(command.size());
 
-		// Convert from wchar_t * to ANSI char *
-		for(i = 0; i < argc; i++) {
-			// Get the size needed for the target buffer.
-			// CP_ACP = Ansi Codepage.
-			needed = WideCharToMultiByte(CP_ACP, 0, wargs[i], -1,
-										 NULL, 0, NULL, NULL);
+			if(!MultiByteToWideChar(CP_ACP, 0, command.c_str(), command.size(), wide_cmdline.data(), command.size())) {
+				return false;
+			}
 
-			char* arg = new char[needed];
+			if(!(argv = CommandLineToArgvW(wide_cmdline.data(), &argc))) {
+				return false;
+			}
 
-			// Do the conversion.
-			needed = WideCharToMultiByte(CP_ACP, 0, wargs[i], -1,
-										 arg, needed, NULL, NULL);
+			split_line.reserve(argc);
 
-			cmdList.push_back(arg);
-		}
-	fail:
-		if(wargs)
-			LocalFree(wargs);
-		if(cmdLineW)
-			delete[] cmdLineW;
-		return cmdList;
-	}
+			// Convert from a wide string back to MBCS
+			// and then put it in our split vector.
+			for(int i = 0; i < argc; i++) {
+				// Get the size needed for the target buffer.
+				const size_t targetBufLen = WideCharToMultiByte(CP_ACP, 0, argv[i], -1, NULL, 0, NULL, NULL);
+				std::string str;
+
+				str.resize(targetBufLen);
+
+				// Do the conversion.
+				WideCharToMultiByte(CP_ACP, 0, argv[i], -1, str.data(), targetBufLen, NULL, NULL);
+
+				split_line.push_back(str);
+			}
+
+			// the wide argv is no longer needed
+			if(argv)
+				LocalFree(argv);
 #endif // WIN32
+
+			return true;
+}
+
+std::optional<std::vector<std::string>> QEMUController::SplitCommandLine(const std::string& command) {
+		std::vector<std::string> split_line;
+		if(!SplitCommandLineImpl(split_line, command))
+			return std::nullopt;
+
+		return split_line;
 }
 
 void QEMUController::OnAgentDisconnect(bool protocol_error) {

@@ -9,7 +9,9 @@
 #include <atomic>
 #include <thread>
 #include <mutex>
+#include <optional>
 #include <vector>
+#include <string>
 
 class CollabVMServer;
 
@@ -158,7 +160,7 @@ class QEMUController : public VMController, public QMPCallback {
 	 * On Unix the wordexp function is used.
 	 * On Windows the CommandLineToArgvW function is used.
 	 */
-	static std::vector<const char*> SplitCommandLine(const char* command);
+	std::optional<std::vector<std::string>> SplitCommandLine(const std::string& command);
 
 	void OnAgentDisconnect(bool protocol_error) override;
 
@@ -194,7 +196,7 @@ class QEMUController : public VMController, public QMPCallback {
 	/**
 	 * The command used to start QEMU.
 	 */
-	std::vector<const char*> qemu_command_;
+	std::vector<std::string> qemu_command_;
 
 	/**
 	 * The name of the VM snapshot to restore when starting QEMU or restarting it.
