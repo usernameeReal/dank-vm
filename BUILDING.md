@@ -24,16 +24,33 @@ Make flags for the Makeconfig-based build system (soon to be replaced) (To enabl
 
 First and foremost, your version of GCC or clang should be able to compile C++17 programs. If it cannot, you need to install a newer compiler.
 
-* Boost 1.67 or above (1.67 is untested, 1.71 onwards works fine though. 1.75+ reccomendded)
+* Boost 1.67 or above (1.67 is untested, 1.71 onwards works fine though. 1.75+ recommended)
 * libvncserver 
 * libpng
 * libturbojpeg
 * libsqlite3-dev
+* cairo
 
 These dependencies compile with the collab-vm-server source code and are shipped with it.
 
 * RapidJSON
 * UriParser
+
+
+There is a Git submodule that you must clone in the `vendor` directory.
+
+* Sqlite-ORM
+
+To grab this, run:
+
+```
+git submodule init --recursive
+git submodule update 
+```
+
+There are other libraries required to use some features.
+
+* turbojpeg (may be packaged as libjpeg-turbo), used for JPEG builds
 
 ### Windows
 On Windows, you have the following options:
@@ -115,7 +132,7 @@ make
 
 To build with the Clang compiler (and, also possibly instrument the binary with ASAN/such), do `make CC=clang CXX=clang++`.
 
-### MacOS X
+### macOS / MacOS X
 **NOTE**: This is untested, and is not guaranteed to work.
 
 On MacOS X, there is a development kit called "XCode". I have no idea at all if it would be compatible with this, so instead, this will use Homebrew to build the server.
@@ -129,7 +146,7 @@ On MacOS X, there is a development kit called "XCode". I have no idea at all if 
 
 
 ### BSD
-CollabVM Server is confirmed to be working on FreeBSD and OpenBSD, but it requires building ODB by yourself, which can be quite a pain. The instructions are the same as Linux for the most part except having to build odb by yourself. The source code is available on the [the CodeSynthesis website](http://www.codesynthesis.com/products/odb/download.xhtml).
+CollabVM Server is confirmed to be working on FreeBSD and OpenBSD, but it may require extra work.
 
 ### Others?
 It's possible that CollabVM Server may run on other operating systems such as GNU/Hurd, OpenIndiana, etc. 
