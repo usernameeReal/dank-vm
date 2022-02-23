@@ -19,6 +19,7 @@ Make flags for the Makeconfig-based build system (soon to be replaced) (To enabl
 - ASAN - Enables the instrumentation of the binary with AddressSanitizer. Needs DEBUG=1 beforehand.
 - TSAN - Enables the instrumentation of the binary with ThreadSanitizer. Needs DEBUG=1 beforehand, and is not compatiable with ASAN=1.
 - V - Displays compile command lines, useful for debugging errors
+- EXECINFO - Includes libexecinfo into the library list, which is used for the backtrace symbol(s) on some \*nix. (Example: Alpine Linux)
 
 ### All Required Dependencies
 
@@ -47,10 +48,6 @@ To grab this, run:
 git submodule init --recursive
 git submodule update 
 ```
-
-There are other libraries required to use some features.
-
-* turbojpeg (may be packaged as libjpeg-turbo), used for JPEG builds
 
 ### Windows
 On Windows, you have the following options:

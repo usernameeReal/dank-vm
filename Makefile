@@ -56,6 +56,10 @@ ifeq ($(JPEG),)
 JPEG = 0
 endif
 
+ifeq ($(EXECINFO),)
+EXECINFO = 0
+endif
+
 ifeq ($(DEBUG),1)
 $(info Building in debug mode)
 else
@@ -66,10 +70,14 @@ ifeq ($(JPEG),1)
 $(info Building JPEG support)
 endif
 
+ifeq ($(EXECINFO),1)
+$(info Using libexecinfo for backtrace symbols)
+endif
+
 .PHONY: all clean help
 
 all:
-	@$(MAKE) -f $(MKCONFIG) DEBUG=$(DEBUG) JPEG=$(JPEG)
+	@$(MAKE) -f $(MKCONFIG) DEBUG=$(DEBUG) JPEG=$(JPEG) EXECINFO=$(EXECINFO)
 	@./scripts/build_site.sh $(ARCH)
 	-@ if [ -d "$(BINDIR)http" ]; then rm -rf $(BINDIR)http; fi;
 	-@mv -f http/ $(BINDIR)

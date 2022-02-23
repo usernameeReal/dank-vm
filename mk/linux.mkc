@@ -11,6 +11,10 @@ LIBS = -pthread -lturbojpeg -ljpeg -lboost_system -lpng -lz -lvncclient -lcairo 
 OBJDIR = obj
 BINDIR = bin
 
+ifeq ($(EXECINFO),1)
+LIBS += -lexecinfo
+endif
+
 .PHONY: all pre clean
 .SUFFIXES: .o .cpp
 
