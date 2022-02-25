@@ -55,7 +55,7 @@ class CollabVMServer : public std::enable_shared_from_this<CollabVMServer> {
 	 * @param port The WebSocket server port to listen on.
 	 * @param doc_root The path of the directory to expose via HTTP.
 	 */
-	void Run(uint16_t port, std::string doc_root);
+	void Run(const std::string& listen_address, uint16_t port, const std::string& doc_root);
 
 	/**
 	 * Stop listening for new clients and disconnect all existing ones.
@@ -154,7 +154,6 @@ class CollabVMServer : public std::enable_shared_from_this<CollabVMServer> {
 	 * Function pointer to a Guacamole instruction handler.
 	 */
 	typedef void (CollabVMServer::*GuacamoleInstruction)(const std::shared_ptr<CollabVMUser>& user, std::vector<char*>& args);
-
 
 	void BroadcastMOTD(VMController& controller, const VMSettings& settings);
 

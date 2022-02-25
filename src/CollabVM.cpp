@@ -309,14 +309,15 @@ std::shared_ptr<VMController> CollabVMServer::CreateVMController(const std::shar
 	return controller;
 }
 
-void CollabVMServer::Run(uint16_t port, std::string doc_root) {
+void CollabVMServer::Run(const std::string& listen_address, uint16_t port, const std::string& doc_root) {
 	using namespace std::placeholders;
 
 	// The path shouldn't end in a slash
 	char last = doc_root[doc_root.length() - 1];
 	if(last == '/' || last == '\\')
-		doc_root = doc_root.substr(0, doc_root.length() - 1);
-	doc_root_ = doc_root;
+		doc_root_ = doc_root.substr(0, doc_root.length() - 1);
+	else
+		doc_root_ = doc_root;
 
 	server_->set_verify_handler(std::bind(&CollabVMServer::OnValidate, this, _1));
 	server_->set_open_handler(std::bind(&CollabVMServer::OnOpen, this, _1));
@@ -327,7 +328,7 @@ void CollabVMServer::Run(uint16_t port, std::string doc_root) {
 	boost::split(blacklisted_usernames_, database_.Configuration.BlacklistedNames, boost::is_any_of(";"));
 
 	// retains compatibility with previous server behaviour
-	server_->start("0.0.0.0", port);
+	server_->start(listen_address, port);
 
 	boost::system::error_code asio_ec;
 	vm_preview_timer_.expires_from_now(std::chrono::seconds(kVMPreviewInterval), asio_ec);
