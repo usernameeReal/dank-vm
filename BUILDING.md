@@ -35,8 +35,6 @@ First and foremost, your version of GCC or clang should be able to compile C++17
 These dependencies compile with the collab-vm-server source code and are shipped with it.
 
 * RapidJSON
-* UriParser
-
 
 There is a Git submodule that you must clone in the `vendor` directory.
 
@@ -45,7 +43,7 @@ There is a Git submodule that you must clone in the `vendor` directory.
 To grab this, run:
 
 ```
-git submodule init --recursive
+git submodule init
 git submodule update 
 ```
 
@@ -79,6 +77,16 @@ pacman -S --noconf mingw-w64-x86_64-toolchain git
 ./scripts/grab_deps_mw32.sh
 
 # If you get a Permission Denied error, go into the scripts directory and type chmod +x *.sh.
+
+# To fix some compile errors, change a part of */include/psdk_inc/_socket_types.h:
+# from typedef UINT_PTR	SOCKET;
+# to typedef unsigned __int64	SOCKET; // may be not int64 on 32-bit needs to be investigated
+
+# and a part of */include/boost/asio/detail/hash_map.hpp:
+# comment or remove out the entirety of inline std::size_t calculate_hash_value(SOCKET s)
+# it's under the rest of the calculate_hash_value's
+
+# It's dumb but it works...
 
 make
 

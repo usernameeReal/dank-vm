@@ -81,6 +81,10 @@ all:
 	@./scripts/build_site.sh $(ARCH)
 	-@ if [ -d "$(BINDIR)http" ]; then rm -rf $(BINDIR)http; fi;
 	-@mv -f http/ $(BINDIR)
+	@echo "Writing manpage for collab-vm-server..."
+	@gzip doc/collab-vm-server.1 -kf
+	@mv doc/collab-vm-server.1.gz $(BINDIR)
+	@echo "Done."
 ifeq ($(OS), Windows_NT)
 
 ifeq ($(CYGWIN), 1)

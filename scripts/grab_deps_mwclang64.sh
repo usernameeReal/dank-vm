@@ -16,7 +16,7 @@ main(){
 	triplet_install "dlfcn";
 	triplet_install "boost";
 	triplet_install "sqlite3";
-	triplet_install "cyrus-sasl";
+#	triplet_install "cyrus-sasl"; # clang32 and clang64 don't define LIBVNCSERVER_HAVE_SASL?
 	triplet_install "winpthreads-git";
 
 	log "Dependency grab finished.";
