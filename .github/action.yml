@@ -1,0 +1,51 @@
+name: CollabVM Server
+
+on: [push, pull_request]
+
+jobs:
+  ubuntu_x64_png: # Latest version of Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+        with: 
+          submodules: true
+      - name: Install Dependencies
+        id: depends
+        run: | 
+          sudo apt update
+          sudo ./scripts/grab_deps_linux.sh
+      - name: Install latest LLVM/Clang
+        id: llvm
+        run: |
+          # We need the latest version of Clang to build the server.
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 13
+      - name: Build
+        id: build
+        run: |
+          # Use clang instead of GCC
+          make CC=clang-13 CXX=clang++13 -j$(nproc)
+  ubuntu_x64_jpeg: # Latest version of Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+        with: 
+          submodules: true
+      - name: Install Dependencies
+        id: depends
+        run: | 
+          sudo apt update
+          sudo ./scripts/grab_deps_linux.sh
+      - name: Install latest LLVM/Clang
+        id: llvm
+        run: |
+          # We need the latest version of Clang to build the server.
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 13
+      - name: Build
+        id: build
+        run: |
+          # Use clang instead of GCC
+          make JPEG=1 CC=clang-13 CXX=clang++13 -j$(nproc)
