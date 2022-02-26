@@ -2,7 +2,7 @@
 # Common makefile stuff for building the CollabVM Server.
 # Allows easy porting!
 
-CCFLAGS = -Isrc -Isrc/uriparser
+CCFLAGS = -Isrc
 
 # Build type switches
 # debug mode, disable optimizations and note debugging
@@ -89,20 +89,6 @@ OBJS = $(OBJDIR)/Main.o                          \
        $(OBJDIR)/GuacUser.o                      \
        $(OBJDIR)/GuacVNCClient.o                 \
        $(OBJDIR)/GuacInstructionParser.o         \
-       $(OBJDIR)/UriCommon.o                     \
-       $(OBJDIR)/UriFile.o                       \
-       $(OBJDIR)/UriNormalizeBase.o              \
-       $(OBJDIR)/UriParse.o                      \
-       $(OBJDIR)/UriResolve.o                    \
-       $(OBJDIR)/UriCompare.o                    \
-       $(OBJDIR)/UriIp4Base.o                    \
-       $(OBJDIR)/UriNormalize.o                  \
-       $(OBJDIR)/UriQuery.o                      \
-       $(OBJDIR)/UriShorten.o                    \
-       $(OBJDIR)/UriEscape.o                     \
-       $(OBJDIR)/UriIp4.o                        \
-       $(OBJDIR)/UriParseBase.o                  \
-       $(OBJDIR)/UriRecompose.o			 \
        $(OBJDIR)/server.o                        \
        $(OBJDIR)/websocket_user.o                \
        $(OBJDIR)/listener.o
@@ -124,7 +110,6 @@ endif
 # This decomplicates a lot of this file and makes it easier to understand
 VPATH := src/             \
 	$(OBJDIR)         \
-        src/uriparser     \
         src/Database      \
         src/Sockets       \
         src/VMControllers \
