@@ -25,7 +25,12 @@ jobs:
         id: build
         run: |
           # Use clang instead of GCC
-          make CC=clang-13 CXX=clang++13 -j$(nproc)
+          make CC=clang-13 CXX=clang++-13 -j$(nproc)
+      - name: Upload Artifact - PNG
+        uses: actions/upload-artifact@v2
+        with: 
+          name: server_binary-PNG
+          path: './bin/**/*'
   ubuntu_x64_jpeg: # Latest version of Ubuntu
     runs-on: ubuntu-latest
     steps:
@@ -48,4 +53,9 @@ jobs:
         id: build
         run: |
           # Use clang instead of GCC
-          make JPEG=1 CC=clang-13 CXX=clang++13 -j$(nproc)
+          make JPEG=1 CC=clang-13 CXX=clang++-13 -j$(nproc)
+      - name: Upload Artifact - JPEG
+        uses: actions/upload-artifact@v2
+        with: 
+          name: server_binary-JPEG
+          path: './bin/**/*'
