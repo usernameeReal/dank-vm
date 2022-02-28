@@ -60,6 +60,10 @@ ifeq ($(EXECINFO),)
 EXECINFO = 0
 endif
 
+ifeq ($(UPNP),)
+EXECINFO = 0
+endif
+
 ifeq ($(DEBUG),1)
 $(info Building in debug mode)
 else
@@ -72,6 +76,10 @@ endif
 
 ifeq ($(EXECINFO),1)
 $(info Using libexecinfo for backtrace symbols)
+endif
+
+ifeq ($(UPNP),1)
+$(info Building Universal Plug-and-Play support)
 endif
 
 .PHONY: all clean help
@@ -107,3 +115,5 @@ help:
 	@echo "make - Build release"
 	@echo "make DEBUG=1 - Build a debug build (Adds extra trace information and debug symbols)"
 	@echo "make JPEG=1 - Build with JPEG support (Useful for slower internet connections)"
+	@echo "make EXECINFO=1 - Use libexecinfo for backtrace symbols (Required on some *nix)"
+	@echo "make UPNP=1 - Build with UPnP support (Useful for some internet connections)"

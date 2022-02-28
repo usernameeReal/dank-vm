@@ -20,7 +20,7 @@ Make flags for the Makeconfig-based build system (soon to be replaced) (To enabl
 - TSAN - Enables the instrumentation of the binary with ThreadSanitizer. Needs DEBUG=1 beforehand, and is not compatiable with ASAN=1.
 - V - Displays compile command lines, useful for debugging errors
 - EXECINFO - Includes libexecinfo into the library list, which is used for the backtrace symbol(s) on some \*nix. (Example: Alpine Linux)
-
+- UPNP - Enables UPnP support via miniupnpc, enabling collab-vm-server to automatically port forward itself on some networks.
 ### All Required Dependencies
 
 First and foremost, your version of GCC or clang should be able to compile C++17 programs. If it cannot, you need to install a newer compiler.
@@ -40,12 +40,19 @@ There is a Git submodule that you must clone in the `vendor` directory.
 
 * Sqlite-ORM
 
+
 To grab this, run:
 
 ```
 git submodule init
 git submodule update 
 ```
+
+### Optional Dependencies for Optional Features
+
+To use some build features, you require additional libraries:
+
+* For UPnP, miniupnpc
 
 ### Windows
 On Windows, you have the following options:

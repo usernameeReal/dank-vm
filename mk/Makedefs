@@ -43,6 +43,12 @@ ifeq ($(JPEG), 1)
 CCFLAGS += -DUSE_JPEG
 endif
 
+ifeq ($(UPNP), 1) 
+# using UPNP
+LIBS += -lminiupnpc
+CCFLAGS += -DUSE_UPNP
+endif
+
 TOP := $(PWD)
 
 # TODO: Remove -fpermissive, all -Wno- and enable -Wall + -Wextra.
@@ -99,6 +105,10 @@ OBJS = $(OBJDIR)/Main.o                          \
 # for JPEG
 ifeq ($(JPEG), 1)
 OBJS += $(OBJDIR)/cairo_jpg.o
+endif
+
+ifeq ($(UPNP), 1)
+OBJS += $(OBJDIR)/upnp.o
 endif
 
 ifeq ($(WIN32), 1) 

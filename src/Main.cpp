@@ -11,6 +11,10 @@
 //#include <windows.h>
 #endif
 
+#ifdef USE_UPNP
+	#include "upnp.h"
+#endif
+
 namespace po = boost::program_options;
 
 // Uncomment this to allow Asio to use multi-threading. WARNING: Might be buggy
@@ -56,6 +60,9 @@ struct Arguments {
 					<< "Compiled with Boost " << BOOST_VERSION / 100000 << "." << BOOST_VERSION / 100 % 1000 << '\n'
 #ifdef USE_JPEG
 					<< "This server is using JPEG.\n"
+#endif
+#ifdef USE_UPNP
+					<< "This server is using UPnP.\n"
 #endif
 #ifdef DEBUG
 					<< "This server is a debug build.\n"
@@ -116,6 +123,10 @@ int main(int argc, char** argv) {
 
 	boost::asio::io_service service_;
 	std::shared_ptr<CollabVMServer> server_;
+	
+#ifdef USE_UPNP
+	init_upnp();
+#endif
 
         // Set up Ctrl+C handler
 	boost::asio::signal_set interruptSignal(service_, SIGINT, SIGTERM);
@@ -123,11 +134,17 @@ int main(int argc, char** argv) {
 		std::cout << "\nShutting down..." << std::endl;
 		server_->Stop();
 		service_.stop();
+#ifdef USE_UPNP
+		upnp_rem_redir(args.GetPort());
+#endif
 	});
 
 	IgnorePipe();
 
 	server_ = std::make_shared<CollabVMServer>(service_);
+#ifdef USE_UPNP
+	upnp_add_redir(args.GetListenAddress().c_str(), args.GetPort());
+#endif
 	server_->Run(args.GetListenAddress(), args.GetPort(), args.GetDocRoot());
 
 #ifdef ENABLE_ASIO_MULTITHREADING
