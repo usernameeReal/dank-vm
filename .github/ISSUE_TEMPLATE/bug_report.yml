@@ -19,12 +19,14 @@ body:
     id: os
     attributes:
       label: What platform are you using?
-      multiple: true
+      multiple: false
       options:
         - Windows
         - Linux
         - macOS
         - None of the above
+    validations:
+      required: true
   - type: textarea
     id: logs
     attributes:

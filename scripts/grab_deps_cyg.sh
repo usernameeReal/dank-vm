@@ -1,4 +1,5 @@
 #!/bin/bash
+# This script is quite old, and may need a rework.
 CVM_HOME=$(pwd)
 
 log(){
@@ -18,5 +19,5 @@ main(){
 
 	log "Dependency grab finished.";
         fi
-		log "SIDE NOTE: YOU ARE NOT DONE, please install a pthread equivalent that provides libpthread.a"; # remove this if there is one
+		log "You might want to obtain a pthread equivalent that provides libpthread.a";
 };main;

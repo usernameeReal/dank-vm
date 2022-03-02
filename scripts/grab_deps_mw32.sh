@@ -1,6 +1,4 @@
 #!/bin/bash
-CVM_HOME=$(pwd)
-
 log(){
 	printf "$1\n"
 }

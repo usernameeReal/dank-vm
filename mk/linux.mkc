@@ -4,7 +4,6 @@ WIN32=0
 
 CXX = clang++
 CC = clang
-ODB = odb
 
 LIBS = -pthread -lturbojpeg -ljpeg -lboost_system -lboost_program_options -lpng -lz -lvncclient -lcairo -lpixman-1 -ldl -lsqlite3
 
