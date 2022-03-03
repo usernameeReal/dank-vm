@@ -152,8 +152,8 @@ On MacOS X, there is a development kit called "XCode". I have no idea at all if 
 - Open a Terminal and a web browser. Go to https://brew.sh.
 - Copy the command from the home page.
 - Enter your password if it asks and start the installation.
-- Once it is finished installing, run the following command: `brew install boost cairo gcc sqlite3`
-- Because libvncserver is not available in the Homebrew Forumlas, it will have to be compiled manually. Type `git clone https://github.com/LibVNC/libvncserver`. Make sure you have the dependencies and build it with `cmake -DLIBVNCSERVER_WITH_WEBSOCKETS=OFF`
+- Once it is finished installing, run the following command: `brew install boost cairo sqlite3 llvm jpeg-turbo libvncserver`
+- Set your exports to as such mentioned during the post-install notes, this is to allow the new libraries to be used.
 - Verify all the dependencies have been successfully installed and build the solution.
 
 
@@ -166,3 +166,8 @@ It's possible that CollabVM Server may run on other operating systems such as GN
 Its possible it might run on MINIX, but these platforms are unsupported and are NOT tested. 
 
 Let me know what crazy operating systems you get it to run on, though!
+
+### Caveats, Gotya's and Errata
+Some compilers may not be able to optimize Sqlite-ORM successfully, creating an Internal Compiler Error, or a memleak during compile.
+
+As of writing, clang seems to support optimizing Sqlite-ORM.
