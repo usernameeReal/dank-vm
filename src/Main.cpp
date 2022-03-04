@@ -42,12 +42,15 @@ struct Arguments {
 		po::variables_map vm; // moved these here so we *can* catch missing var errors
 		try {
 			desc.add_options()
-				("listen,l", po::value<std::string>(&listen_address)->default_value("0.0.0.0"), "The address to listen on. Defaults to all interfaces.")
-				("port,p", po::value<int>(&port)->required(), "The port to listen on")
-				("root,r", po::value<std::string>(&http_dir)->default_value("http"), "The root folder to serve HTTP files from. Currently useless, as there is no HTTP web server (yet!)")
+				("listen,l", po::value<std::string>(&listen_address)->default_value("0.0.0.0")->value_name("string"), "The address to listen on. Defaults to all interfaces.")
+				("port,p", po::value<int>(&port)->required()->value_name("num"), "The port to listen on")
+				("root,r", po::value<std::string>(&http_dir)->default_value("http")->value_name("string"), "The root folder to serve HTTP files from. Currently useless, as there is no HTTP web server (yet!)")
 				("version,v", "Display server & library versions")
 				("help,h", "Show this help screen");
-
+#ifdef USE_UPNP
+			desc.add_options()
+				("noupnp,n", po::value<bool>(&disable_upnp)->value_name("bool"), "Disable UPnP support for this session.");
+#endif
 			po::store(po::parse_command_line(argc, argv, desc), vm);
 
 			if (vm.count("help") || argc == 1) {
@@ -75,7 +78,7 @@ struct Arguments {
 			po::notify(vm);
 			return true;
 		} catch (boost::program_options::required_option::error& e) {
-			std::cerr << "A required parameter was not specified!" << "\n"; // make this less vague
+			std::cerr << "Syntax Error: " << e.what() << std::endl;
 			return false;
 		} catch (std::exception& e) {
 			std::cerr << e.what() << "\n";
@@ -96,12 +99,19 @@ struct Arguments {
 	
 	int GetPort() const {
 		return port;
+	}	
+
+#ifdef USE_UPNP	
+	bool upnpDisabled() const {
+		return disable_upnp;
 	}
+#endif
 
 private:
 	std::string listen_address;
 	std::string http_dir;
 	int port;
+	bool disable_upnp;
 };
 
 
@@ -125,7 +135,9 @@ int main(int argc, char** argv) {
 	std::shared_ptr<CollabVMServer> server_;
 	
 #ifdef USE_UPNP
-	init_upnp();
+	if (!args.upnpDisabled()) {
+		init_upnp();
+	}
 #endif
 
         // Set up Ctrl+C handler
@@ -135,7 +147,9 @@ int main(int argc, char** argv) {
 		server_->Stop();
 		service_.stop();
 #ifdef USE_UPNP
-		upnp_rem_redir(args.GetPort());
+		if (!args.upnpDisabled()) {
+			upnp_rem_redir(args.GetPort());
+		}
 #endif
 	});
 
@@ -143,8 +157,10 @@ int main(int argc, char** argv) {
 
 	server_ = std::make_shared<CollabVMServer>(service_);
 #ifdef USE_UPNP
-	upnp_add_redir(args.GetListenAddress().c_str(), args.GetPort());
-	std::cout.flush(); // because we're calling from C stuff our stdout buffer is weird
+	if (!args.upnpDisabled()) {
+		upnp_add_redir(args.GetPort());
+		std::cout.flush(); // because we're calling from C stuff our stdout buffer is weird
+	}
 #endif
 	server_->Run(args.GetListenAddress(), args.GetPort(), args.GetDocRoot());
 

@@ -70,7 +70,7 @@ jobs:
         run: | 
           sudo apt update
           sudo ./scripts/grab_deps_linux.sh
-          apt install miniupnpc-dev
+          sudo apt install miniupnpc-dev
       - name: Install latest LLVM/Clang
         id: llvm
         run: |
@@ -99,7 +99,7 @@ jobs:
         run: | 
           sudo apt update
           sudo ./scripts/grab_deps_linux.sh
-          apt install miniupnpc-dev
+          sudo apt install miniupnpc-dev
       - name: Install latest LLVM/Clang
         id: llvm
         run: |
