@@ -144,6 +144,7 @@ int main(int argc, char** argv) {
 	server_ = std::make_shared<CollabVMServer>(service_);
 #ifdef USE_UPNP
 	upnp_add_redir(args.GetListenAddress().c_str(), args.GetPort());
+	std::cout.flush(); // because we're calling from C stuff our stdout buffer is weird
 #endif
 	server_->Run(args.GetListenAddress(), args.GetPort(), args.GetDocRoot());
 

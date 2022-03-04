@@ -61,6 +61,7 @@ void upnp_add_redir (const char * addr, unsigned int port)
 		return;
 	}
 	sprintf(port_str, "%d", port);
+	printf("[UPnP] Opening %s:%s to the internet...\n",addr,port_str);
 	r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype, port_str, port_str, addr, "collabvm", "TCP", NULL, NULL);
 	if(r==0)
 		return;
@@ -79,5 +80,6 @@ void upnp_rem_redir (unsigned int port)
 		return;
 	}
 	sprintf(port_str, "%d", port);
+	printf("[UPnP] Closing port %s from the internet...\n",port_str);
 	UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype, port_str, "TCP", NULL);
 }
