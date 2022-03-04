@@ -11,6 +11,7 @@
 static struct UPNPUrls urls;
 static struct IGDdatas data;
 static char externalip[16];
+
 void init_upnp (void)
 {
 	struct UPNPDev * devlist;
