@@ -32,8 +32,7 @@ void init_upnp (void)
 		}
 		if (!dev)
 			dev = devlist; /* defaulting to first device */
-		int thing = 0;
-		descXML = miniwget(dev->descURL, &descXMLsize, 0, &thing);
+		descXML = miniwget(dev->descURL, &descXMLsize, 0, &upnperror);
 		if (descXML)
 		{
 			parserootdesc (descXML, descXMLsize, &data);
@@ -52,6 +51,11 @@ void upnp_add_redir (const char * addr, unsigned int port)
 {
 	char port_str[8];
 	int r;
+	if (urls.controlURL == NULL)
+	{
+		fprintf(stderr, "[UPnP] Error: No UPnP-compatible gateway detected.\nCollabVM Server will not be automatically forwarded.\n");
+		return;
+	}
 	if(urls.controlURL[0] == '\0')
 	{
 		return;
@@ -66,6 +70,10 @@ void upnp_rem_redir (unsigned int port)
 {
 	char port_str[8];
 	int t;
+	if (urls.controlURL == NULL)
+	{
+		return;
+	}
 	if(urls.controlURL[0] == '\0')
 	{
 		return;
