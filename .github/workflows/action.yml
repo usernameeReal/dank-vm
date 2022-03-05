@@ -3,8 +3,11 @@ name: CollabVM Server
 on: [push, pull_request]
 
 jobs:
-  ubuntu_x64_png: # Latest version of Ubuntu
+  ubuntu_x64: # Latest version of Ubuntu
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        flavor: [{"type": "PNG", "makeopts": "", "extdeps": ""},{"type": "JPEG", "makeopts": "JPEG=1", "extdeps": ""},{"type": "PNG-UPnP", "makeopts": "UPNP=1", "extdeps": "libminiupnpc-dev"},{"type": "JPEG-UPnP", "makeopts": "JPEG=1 UPNP=1", "extdeps": "libminiupnpc-dev"}]
     steps:
       - uses: actions/checkout@main
         with: 
@@ -14,6 +17,11 @@ jobs:
         run: | 
           sudo apt update
           sudo ./scripts/grab_deps_linux.sh
+      - name: Install Extra Dependencies
+        id: extdepends
+        if: ${{matrix.flavor.extdeps != ''}}
+        run: | 
+          sudo apt install ${{matrix.flavor.extdeps}}
       - name: Install latest LLVM/Clang
         id: llvm
         run: |
@@ -25,95 +33,9 @@ jobs:
         id: build
         run: |
           # Use clang instead of GCC
-          make CC=clang-13 CXX=clang++-13 -j$(nproc)
+          make ${{matrix.flavor.makeopts}} CC=clang-13 CXX=clang++-13 -j$(nproc)
       - name: Upload Artifact - PNG
         uses: actions/upload-artifact@v2
         with: 
-          name: server_binary-PNG
-          path: './bin/**/*'
-  ubuntu_x64_jpeg: # Latest version of Ubuntu
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@main
-        with: 
-          submodules: true
-      - name: Install Dependencies
-        id: depends
-        run: | 
-          sudo apt update
-          sudo ./scripts/grab_deps_linux.sh
-      - name: Install latest LLVM/Clang
-        id: llvm
-        run: |
-          # We need the latest version of Clang to build the server.
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 13
-      - name: Build
-        id: build
-        run: |
-          # Use clang instead of GCC
-          make JPEG=1 CC=clang-13 CXX=clang++-13 -j$(nproc)
-      - name: Upload Artifact - JPEG
-        uses: actions/upload-artifact@v2
-        with: 
-          name: server_binary-JPEG
-          path: './bin/**/*'  
-  ubuntu_x64_png_upnp: # Latest version of Ubuntu
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@main
-        with: 
-          submodules: true
-      - name: Install Dependencies
-        id: depends
-        run: | 
-          sudo apt update
-          sudo ./scripts/grab_deps_linux.sh
-          sudo apt install miniupnpc-dev
-      - name: Install latest LLVM/Clang
-        id: llvm
-        run: |
-          # We need the latest version of Clang to build the server.
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 13
-      - name: Build
-        id: build
-        run: |
-          # Use clang instead of GCC
-          make UPNP=1 CC=clang-13 CXX=clang++-13 -j$(nproc)
-      - name: Upload Artifact - PNG
-        uses: actions/upload-artifact@v2
-        with: 
-          name: server_binary-PNG-UPnP
-          path: './bin/**/*'
-  ubuntu_x64_jpeg_upnp: # Latest version of Ubuntu
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@main
-        with: 
-          submodules: true
-      - name: Install Dependencies
-        id: depends
-        run: | 
-          sudo apt update
-          sudo ./scripts/grab_deps_linux.sh
-          sudo apt install miniupnpc-dev
-      - name: Install latest LLVM/Clang
-        id: llvm
-        run: |
-          # We need the latest version of Clang to build the server.
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 13
-      - name: Build
-        id: build
-        run: |
-          # Use clang instead of GCC
-          make JPEG=1 UPNP=1 CC=clang-13 CXX=clang++-13 -j$(nproc)
-      - name: Upload Artifact - JPEG
-        uses: actions/upload-artifact@v2
-        with: 
-          name: server_binary-JPEG-UPnP
+          name: server_binary-${{matrix.flavor.type}}
           path: './bin/**/*'
