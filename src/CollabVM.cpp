@@ -132,7 +132,8 @@ enum admin_opcodes_ {
 	kClearTurnQueue,  // End all turns
 	kRenameUser,	  // Rename a user
 	kUserIP,		  // Sends back a user's IP address
-	kForceTakeTurn	  // Skip the queue and forcefully take a turn (Turn-jacking)
+	kForceTakeTurn,	  // Skip the queue and forcefully take a turn (Turn-jacking)
+	kDirectMessage	  // Send a chat message to one user directly.
 };
 
 enum SERVER_SETTINGS {
@@ -1876,7 +1877,7 @@ void CollabVMServer::OnAdminInstruction(const std::shared_ptr<CollabVMUser>& use
 	if(!user->admin_connected && opcode != kSeshID && opcode != kMasterPwd && (user->user_rank != UserRank::kModerator || !database_.Configuration.ModEnabled))
 		return;
 
-	if(user->user_rank == UserRank::kModerator && opcode != kStop && opcode != kSeshID && opcode != kMasterPwd && (opcode != kRestoreVM || !(database_.Configuration.ModPerms & 1)) && (opcode != kResetVM || !(database_.Configuration.ModPerms & 2)) && (opcode != kBanUser || !(database_.Configuration.ModPerms & 4)) && (opcode != kForceVote || !(database_.Configuration.ModPerms & 8)) && (opcode != kMuteUser || !(database_.Configuration.ModPerms & 16)) && (opcode != kKickUser || !(database_.Configuration.ModPerms & 32)) && (opcode != kEndUserTurn || !(database_.Configuration.ModPerms & 64)) && (opcode != kClearTurnQueue || !(database_.Configuration.ModPerms & 64)) && (opcode != kForceTakeTurn || !(database_.Configuration.ModPerms & 64)) && (opcode != kRenameUser || !(database_.Configuration.ModPerms & 128)) && (opcode != kUserIP || !(database_.Configuration.ModPerms & 256)))
+	if(user->user_rank == UserRank::kModerator && opcode != kStop && opcode != kSeshID && opcode != kMasterPwd && (opcode != kRestoreVM || !(database_.Configuration.ModPerms & 1)) && (opcode != kResetVM || !(database_.Configuration.ModPerms & 2)) && (opcode != kBanUser || !(database_.Configuration.ModPerms & 4)) && (opcode != kForceVote || !(database_.Configuration.ModPerms & 8)) && (opcode != kMuteUser || !(database_.Configuration.ModPerms & 16)) && (opcode != kKickUser || !(database_.Configuration.ModPerms & 32)) && (opcode != kEndUserTurn || !(database_.Configuration.ModPerms & 64)) && (opcode != kClearTurnQueue || !(database_.Configuration.ModPerms & 64)) && (opcode != kForceTakeTurn || !(database_.Configuration.ModPerms & 64)) && (opcode != kRenameUser || !(database_.Configuration.ModPerms & 128)) && (opcode != kUserIP || !(database_.Configuration.ModPerms & 256)) && (opcode != kDirectMessage || !(database_.Configuration.ModPerms & 512)))
 		return;
 
 	switch(opcode) {
@@ -2219,6 +2220,29 @@ void CollabVMServer::OnAdminInstruction(const std::shared_ptr<CollabVMUser>& use
 		case kForceTakeTurn:
 			if(user->vm_controller != nullptr && user->username) {
 				user->vm_controller->TurnRequest(user, 1, 1);
+			};
+			break;
+		case kDirectMessage:
+			if(args.size() == 3) {
+				for(auto it = connections_.begin(); it != connections_.end(); it++) {
+					std::shared_ptr<CollabVMUser> theUser = *it;
+					if(!theUser->username)
+						continue;
+					if(*theUser->username == args[1]) {
+						std::string instr = "4.chat,";
+						std::string msg = args[2];
+						instr += std::to_string(user->username->length());
+						instr += ".";
+						instr += *user->username;
+						instr += ",";
+						instr += std::to_string(msg.length());
+						instr += ".";
+						instr += msg;
+						instr += ";";
+						SendWSMessage(*theUser, instr);
+						break;
+					};
+				};
 			};
 			break;
 	}
