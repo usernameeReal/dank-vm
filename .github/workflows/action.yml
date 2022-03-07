@@ -34,7 +34,7 @@ jobs:
         run: |
           # Use clang instead of GCC
           make ${{matrix.flavor.makeopts}} CC=clang-13 CXX=clang++-13 -j$(nproc)
-      - name: Upload Artifact - PNG
+      - name: Upload Artifact - ${{matrix.flavor.type}}
         uses: actions/upload-artifact@v2
         with: 
           name: server_binary-${{matrix.flavor.type}}

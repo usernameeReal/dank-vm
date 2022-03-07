@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h> // free()
 
 #include "upnp.h"
 
-#include <miniupnpc/miniwget.h>
 #include <miniupnpc/miniupnpc.h>
 #include <miniupnpc/upnpcommands.h>
 

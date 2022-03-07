@@ -111,7 +111,9 @@ private:
 	std::string listen_address;
 	std::string http_dir;
 	int port;
+#ifdef USE_UPNP	
 	bool disable_upnp;
+#endif
 };
 
 
