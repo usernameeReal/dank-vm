@@ -83,7 +83,7 @@ namespace GuacInstructionParser {
 					return output;
 
 				// Otherwise, this is probably an fuzz attempt,
-				// so fuck you!
+				// so get mad!
 				return std::vector<std::string>();
 			}
 

@@ -1463,7 +1463,7 @@ void CollabVMServer::ChangeUsername(const std::shared_ptr<CollabVMUser>& data, c
 		if((now - data->ip_data.last_name_chg).count() < database_.Configuration.NameRateTime) {
 			if(++data->ip_data.name_chg_count >= database_.Configuration.NameRateCount) {
 				std::string mute_time = std::to_string(database_.Configuration.NameMuteTime);
-				std::cout << "[Anti-Namefag] User prevented from changing usernames. It has been stopped for " << mute_time << " seconds. IP: " << data->ip_data.GetIP() << std::endl;
+				std::cout << "[Anti-Namespam] User prevented from changing usernames. It has been stopped for " << mute_time << " seconds. IP: " << data->ip_data.GetIP() << std::endl;
 				// Keep the user from changing their name for attempting to go over the
 				// name change limit
 				data->ip_data.last_name_chg = now;
@@ -2389,7 +2389,7 @@ void CollabVMServer::OnTurnInstruction(const std::shared_ptr<CollabVMUser>& user
 	if((now - user->ip_data.last_turn).count() < database_.Configuration.TurnRateTime) {
 		if(++user->ip_data.turn_count >= database_.Configuration.TurnRateCount) {
 			std::string mute_time = std::to_string(database_.Configuration.TurnMuteTime);
-			std::cout << "[Anti-Turnfag] User prevented from taking turns. It has been stopped for " << mute_time << " seconds. IP: " << user->ip_data.GetIP() << std::endl;
+			std::cout << "[Anti-Turnspam] User prevented from taking turns. It has been stopped for " << mute_time << " seconds. IP: " << user->ip_data.GetIP() << std::endl;
 			user->ip_data.last_turn = now;
 			user->ip_data.turn_fixed = true;
 		}

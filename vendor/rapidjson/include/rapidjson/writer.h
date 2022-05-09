@@ -125,7 +125,7 @@ public:
         return WriteString(str, length);
     }
 	
-	// GCC doesn't like overriding the const char* writer so fuck it
+	// GCC doesn't like overriding the const char* writer, so this is what we get
     bool String_bs(const std::basic_string<Ch>& str) {
         return String(str.data(), SizeType(str.size()));
     }
