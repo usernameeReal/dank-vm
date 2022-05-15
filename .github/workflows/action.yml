@@ -50,3 +50,8 @@ jobs:
         with: 
           name: server_binary-${{matrix.flavor.type}}
           path: './bin/**/*'
+      - name: Clean up submodules
+        id: cleanupsubmodules
+        run: | 
+          git submodule deinit --force --all
+          # Doing this anywhere else would be horrible.
