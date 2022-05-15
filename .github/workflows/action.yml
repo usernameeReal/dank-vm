@@ -11,7 +11,11 @@ jobs:
     steps:
       - uses: actions/checkout@main
         with: 
-          submodules: true
+          submodules: false
+      - name: Manually checkout submodule(s)
+        id: submodules
+        run: | 
+          git submodule update --init
       - name: Install Dependencies
         id: depends
         run: | 
