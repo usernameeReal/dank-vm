@@ -168,6 +168,6 @@ Its possible it might run on MINIX, but these platforms are unsupported and are 
 Let me know what crazy operating systems you get it to run on, though!
 
 ### Caveats, Gotya's and Errata
-Some compilers may not be able to optimize Sqlite-ORM successfully, creating an Internal Compiler Error, or a memleak during compile.
+As of writing, there are no known compiler issues that are affect all platforms.
 
-As of writing, clang seems to support optimizing Sqlite-ORM.
+For windows users, libvncserver's conflicting definitions still are an issue.

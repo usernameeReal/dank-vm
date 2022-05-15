@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        flavor: [{"type": "PNG", "makeopts": "", "extdeps": ""},{"type": "JPEG", "makeopts": "JPEG=1", "extdeps": ""},{"type": "PNG-UPnP", "makeopts": "UPNP=1", "extdeps": "libminiupnpc-dev"},{"type": "JPEG-UPnP", "makeopts": "JPEG=1 UPNP=1", "extdeps": "libminiupnpc-dev"}]
+        flavor: [{"type": "gcc-PNG", "makeopts": "", "extdeps": "", "cc": "gcc-10", "cxx": "g++-10"},{"type": "gcc-JPEG", "makeopts": "JPEG=1", "extdeps": "", "cc": "gcc-10", "cxx": "g++-10"},{"type": "gcc-PNG-UPnP", "makeopts": "UPNP=1", "extdeps": "libminiupnpc-dev", "cc": "gcc-10", "cxx": "g++-10"},{"type": "gcc-JPEG-UPnP", "makeopts": "JPEG=1 UPNP=1", "extdeps": "libminiupnpc-dev", "cc": "gcc-10", "cxx": "g++-10"},{"type": "clang-PNG", "makeopts": "", "extdeps": "", "cc": "clang-13", "cxx": "clang++-13"},{"type": "clang-JPEG", "makeopts": "JPEG=1", "extdeps": "", "cc": "clang-13", "cxx": "clang++-13"},{"type": "clang-PNG-UPnP", "makeopts": "UPNP=1", "extdeps": "libminiupnpc-dev", "cc": "clang-13", "cxx": "clang++-13"},{"type": "clang-JPEG-UPnP", "makeopts": "JPEG=1 UPNP=1", "extdeps": "libminiupnpc-dev", "cc": "clang-13", "cxx": "clang++-13"}] # This is getting too long.
     steps:
       - uses: actions/checkout@main
         with: 
@@ -22,18 +22,25 @@ jobs:
         if: ${{matrix.flavor.extdeps != ''}}
         run: | 
           sudo apt install ${{matrix.flavor.extdeps}}
+      - name: Install GCC
+        id: gcc
+        if: ${{matrix.flavor.cc == 'gcc-10'}}
+        run: |
+          sudo apt install ${{matrix.flavor.cc}} ${{matrix.flavor.cxx}}
       - name: Install latest LLVM/Clang
         id: llvm
+        if: ${{matrix.flavor.cc == 'clang-13'}}
         run: |
           # We need the latest version of Clang to build the server.
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
           sudo ./llvm.sh 13
+          # consider: llvm.sh 14?
       - name: Build
         id: build
         run: |
-          # Use clang instead of GCC
-          make ${{matrix.flavor.makeopts}} CC=clang-13 CXX=clang++-13 -j$(nproc)
+          # Use our matrix's flavor instead of whatever default is specified.
+          make ${{matrix.flavor.makeopts}} CC=${{matrix.flavor.cc}} CXX=${{matrix.flavor.cxx}} -j$(nproc)
       - name: Upload Artifact - ${{matrix.flavor.type}}
         uses: actions/upload-artifact@v2
         with: 
