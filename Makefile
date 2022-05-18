@@ -38,11 +38,31 @@ endif
 
 else
 
+UNAMES := $(shell uname -s)
+
+ifeq ($(UNAME_S),Darwin)
+
+$(info Compiling targeting Darwin)
+MKCONFIG=mk/bsd.mkc
+BINDIR=bin/
+ARCH=$(shell uname -m)
+
+else ifeq ($(UNAME_S),FreeBSD)
+
+$(info Compiling targeting FreeBSD)
+MKCONFIG=mk/bsd.mkc
+BINDIR=bin/
+ARCH=$(shell uname -m)
+
+else
+
 # Assume Linux or other *nix-likes
 $(info Compiling targeting *nix)
 MKCONFIG=mk/linux.mkc
 BINDIR=bin/
 ARCH=$(shell uname -m)
+
+endif
 
 endif
 

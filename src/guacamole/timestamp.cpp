@@ -73,7 +73,11 @@ guac_timestamp guac_timestamp_current() {
     struct timeval current;
 
     /* Get current time */
+#if defined(__FreeBSD__) || defined(__APPLE__)
+    gettimeofday(&current, (struct timezone*)0); // In FBSD timezone is a structure, not an integer.
+#else
     gettimeofday(&current, (timezone*)0);
+#endif
     
     /* Calculate milliseconds */
     return (guac_timestamp) current.tv_sec * 1000 + current.tv_usec / 1000;

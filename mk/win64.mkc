@@ -2,6 +2,7 @@
 # 64-bit Windows
 
 WIN32=1
+BSD=0
 
 CXX = x86_64-w64-mingw32-clang++
 CC = x86_64-w64-mingw32-clang

@@ -1,6 +1,7 @@
 # CollabVM Server mkconfig for GNU/Linux
 
 WIN32=0
+BSD=0
 
 CXX = clang++
 CC = clang

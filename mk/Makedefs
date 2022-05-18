@@ -49,6 +49,12 @@ LIBS += -lminiupnpc
 CCFLAGS += -DUSE_UPNP
 endif
 
+ifeq ($(BSD), 1)
+# using BSD (assuming ports, so PREFIX)
+CCFLAGS += -I$(PREFIX)/include
+LIBS += -L$(PREFIX)/lib
+endif
+
 TOP := $(PWD)
 
 # TODO: Remove -fpermissive, all -Wno- and enable -Wall + -Wextra.

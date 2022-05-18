@@ -17,7 +17,11 @@
 
 	// This will probably hamper compatibility on non-Linux for a bit
 	// but whatever
+#if defined(__FreeBSD__) || defined(__APPLE__)
+	#include <sys/procctl.h>
+#else
 	#include <sys/prctl.h>
+#endif
 #endif
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
@@ -525,7 +529,12 @@ void QEMUController::StartQEMU() {
 
 		// If the collab-vm-server dies, we need to be terminated as well
 		// so the server can restart alright.
-		int prctl_result = prctl(PR_SET_PDEATHSIG, SIGTERM);
+		#if defined(__FreeBSD__) || defined(__APPLE__)
+			int sigcode = SIGTERM;
+			int prctl_result = procctl(P_PID, 0, PROC_PDEATHSIG_CTL, &sigcode);
+		#else
+			int prctl_result = prctl(PR_SET_PDEATHSIG, SIGTERM);
+		#endif		
 		if (prctl_result == -1) {
 			perror(0);
 			exit(1);
