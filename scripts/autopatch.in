@@ -1,0 +1,11 @@
+[STAR][STAR][STAR] [PREFIX]/include/rfb/rfbproto.h
+[NEWLINE]--- [PREFIX]/include/rfb/rfbproto.h
+[NEWLINE][STAR][STAR][STAR][STAR][STAR][STAR][STAR][STAR][STAR][STAR][STAR][STAR][STAR][STAR][STAR] typedef int8_t rfbBool;
+[NEWLINE][STAR][STAR][STAR] 100,102 [STAR][STAR][STAR][STAR]
+[NEWLINE][DSPACE]#endif
+[NEWLINE][CHANGE]#define SOCKET int
+[NEWLINE][DSPACE]typedef int8_t rfbBool;
+[NEWLINE]--- 100,102 ----
+[NEWLINE][DSPACE]#endif
+[NEWLINE][CHANGE]#define SOCKET size_t
+[NEWLINE][DSPACE]typedef int8_t rfbBool;[SPACE]

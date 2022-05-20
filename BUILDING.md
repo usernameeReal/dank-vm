@@ -83,17 +83,19 @@ pacman -S --noconf mingw-w64-x86_64-toolchain git
 # Get all of the CollabVM Server dependencies (for Win32).
 ./scripts/grab_deps_mw32.sh
 
+# clang32 and clang64 are supported, for those use for 64-bit
+./scripts/grab_deps_mwclang64.sh
+
+# and for 32-bit
+./scripts/grab_deps_mwclang32.sh
+
 # If you get a Permission Denied error, go into the scripts directory and type chmod +x *.sh.
 
-# To fix some compile errors, change a part of */include/psdk_inc/_socket_types.h:
-# from typedef UINT_PTR	SOCKET;
-# to typedef unsigned __int64	SOCKET; // may be not int64 on 32-bit needs to be investigated
+# Before building, you may need to patch your rfbproto.h file to work with boost
+# To do this:
+./scripts/msys_autopatcher.sh
 
-# and a part of */include/boost/asio/detail/hash_map.hpp:
-# comment or remove out the entirety of inline std::size_t calculate_hash_value(SOCKET s)
-# it's under the rest of the calculate_hash_value's
-
-# It's dumb but it works...
+# As it says, you should be able to run make now.
 
 make
 
@@ -158,7 +160,19 @@ On MacOS X, there is a development kit called "XCode". I have no idea at all if 
 
 
 ### BSD
-CollabVM Server is confirmed to be working on FreeBSD and OpenBSD, but it may require extra work.
+The FreeBSD port has been tested to function correctly, 
+```
+# You can instal the required dependencies as such
+pkg install libvncserver libjpeg-turbo boost-all cairo jpeg-turbo sqlite3
+
+# Then build with GNU make (gmake).
+# PREFIX is required to be set on *BSD because 
+# of the ports system installing to a different location.
+
+gmake PREFIX=/usr/local
+```
+
+Other BSDs such as OpenBSD and NetBSD may require extra work.
 
 ### Others?
 It's possible that CollabVM Server may run on other operating systems such as GNU/Hurd, OpenIndiana, etc. 
@@ -167,7 +181,9 @@ Its possible it might run on MINIX, but these platforms are unsupported and are 
 
 Let me know what crazy operating systems you get it to run on, though!
 
+And if you've managed to get a port building constantly, Consider contributing to either the repo or the wiki.
+
 ### Caveats, Gotya's and Errata
 As of writing, there are no known compiler issues that are affect all platforms.
 
-For windows users, libvncserver's conflicting definitions still are an issue.
+For windows users, libvncserver's conflicting definitions still are an issue, yet can be fixed using the included autopatcher script.
