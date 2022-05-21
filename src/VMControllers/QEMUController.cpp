@@ -529,7 +529,8 @@ void QEMUController::StartQEMU() {
 
 		// If the collab-vm-server dies, we need to be terminated as well
 		// so the server can restart alright.
-		#if defined(__FreeBSD__) || defined(__APPLE__)
+		// We should find an alternative to this for Darwin.
+		#if defined(__FreeBSD__) || defined(__DragonFly__)
 			int sigcode = SIGTERM;
 			int prctl_result = procctl(P_PID, 0, PROC_PDEATHSIG_CTL, &sigcode);
 		#else

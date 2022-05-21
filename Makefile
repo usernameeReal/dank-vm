@@ -38,7 +38,7 @@ endif
 
 else
 
-UNAMES := $(shell uname -s)
+UNAME_S := $(shell uname -s)
 
 ifeq ($(UNAME_S),Darwin)
 
@@ -50,6 +50,13 @@ ARCH=$(shell uname -m)
 else ifeq ($(UNAME_S),FreeBSD)
 
 $(info Compiling targeting FreeBSD)
+MKCONFIG=mk/bsd.mkc
+BINDIR=bin/
+ARCH=$(shell uname -m)
+
+else ifeq ($(UNAME_S),DragonFly)
+
+$(info Compiling targeting DragonFlyBSD)
 MKCONFIG=mk/bsd.mkc
 BINDIR=bin/
 ARCH=$(shell uname -m)

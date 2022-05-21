@@ -73,7 +73,7 @@ guac_timestamp guac_timestamp_current() {
     struct timeval current;
 
     /* Get current time */
-#if defined(__FreeBSD__) || defined(__APPLE__)
+#if defined(__FreeBSD__) || defined(__APPLE__) || defined(__DragonFly__)
     gettimeofday(&current, (struct timezone*)0); // In FBSD timezone is a structure, not an integer.
 #else
     gettimeofday(&current, (timezone*)0);
