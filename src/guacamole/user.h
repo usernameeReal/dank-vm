@@ -182,7 +182,7 @@ struct guac_user {
     void* data;
 
     /**
-     * Handler for mouse events sent by the Gaucamole web-client.
+     * Handler for mouse events sent by the Guacamole web-client.
      *
      * The handler takes the integer mouse X and Y coordinates, as well as
      * a button mask containing the bitwise OR of all button values currently
